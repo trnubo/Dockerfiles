@@ -9,5 +9,5 @@ do
   etcd_key=$(echo $key | sed 's/VHOST_//' | tr '[:upper:]' '[:lower:]')
   value=$(eval echo \$$key)
   echo "Vhost: $vhost, Key: $key, Value: $value"
-  echo etcdctl set $etcd_base/$vhost/$etcd_key "$value"
+  etcdctl set $etcd_base/$vhost/$etcd_key "$value"
 done
