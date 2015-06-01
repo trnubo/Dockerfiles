@@ -1,0 +1,31 @@
+{{range $dir := lsdir "/services/web"}}
+{{$vhost := base $dir}}
+upstream {{base $dir}} {
+    {{$custdir := printf "/services/web/%s/*" $dir}}{{range gets $custdir}}
+    server {{.Value}} fail_timeout=30s;{{end}}
+}
+
+server {
+{{range printf "/web/%s/server_name*" $vhost | getvs}}
+  server_name {{.}};{{end}}
+
+  access_log /var/log/nginx/{{$vhost}}.access.log;
+
+  # client_max_body_size 0;
+
+  location / {
+    proxy_pass {{$vhost}};
+    # proxy_read_timeout 90;
+    # client_max_body_size 200m;
+    proxy_set_header Host $http_host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+  }
+
+  error_page 500 502 503 504 /50x.html;
+  location = /50x.html {
+    root /usr/share/nginx/html;
+  }
+}
+{{end}}
