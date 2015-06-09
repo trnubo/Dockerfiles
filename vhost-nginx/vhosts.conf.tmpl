@@ -9,14 +9,12 @@ server {
 {{range printf "/web/%s/server_name*" $vhost | getvs}}
   server_name {{.}};{{end}}
 
-  access_log /var/log/nginx/{{$vhost}}.access.log;
-
-  # client_max_body_size 0;
+  # access_log /var/log/nginx/{{$vhost}}.access.log;
 
   location / {
     proxy_pass http://{{$vhost}};
-    # proxy_read_timeout 90;
-    # client_max_body_size 200m;
+    {{if printf "/web/%s/proxy_read_timeout" $vhost | exists}}proxy_read_timeout {{printf "/web/%s/proxy_read_timeout" $vhost | getv}};{{end}}
+    {{if printf "/web/%s/client_max_body_size" $vhost | exists}}client_max_body_size {{printf "/web/%s/client_max_body_size" $vhost | getv}};{{end}}
     proxy_set_header Host $http_host;
     proxy_set_header X-Real-IP $remote_addr;
     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
@@ -27,5 +25,24 @@ server {
   location = /50x.html {
     root /usr/share/nginx/html;
   }
+
+  {{if printf "/web/%s/ssl_certificate" $vhost | exists}}
+
+  listen                                443 ssl;
+  ssl_certificate                       {{printf "/web/%s/ssl_certificate" $vhost | getv}};
+  ssl_certificate_key                   {{printf "/web/%s/ssl_certificate" $vhost | getv}};
+  ssl_ciphers {{if printf "/web/%s/ssl_ciphers" $vhost | exists}}{{printf "/web/%s/ssl_ciphers" $vhost | getv}}{{else}}EECDH+ECDSA+AESGCM:EECDH+aRSA+AESGCM:EECDH+ECDSA+SHA384:EECDH+ECDSA+SHA256:EECDH+aRSA+SHA384:EECDH+aRSA+SHA256:EECDH:EDH+aRSA:!aNULL:!eNULL:!LOW:!3DES:!MD5:!EXP:!PSK:!SRP:!DSS:!RC4{{end}};
+  ssl_protocols {{if printf "/web/%s/ssl_protocols" $vhost | exists}}{{printf "/web/%s/ssl_protocols" $vhost | getv}}{{else}}TLSv1 TLSv1.1 TLSv1.2{{end}};
+  {{end}}
+
+  {{if (printf "/web/%s/ssl_only" $vhost | exists) and (printf "/web/%s/ssl_only" $vhost | getv | eq "true")}}
+}
+server {
+  {{range printf "/web/%s/server_name*" $vhost | getvs}}
+  server_name {{.}};{{end}}
+  return 301 https://$server_name$request_uri;
+
+  {{end}}
+  listen 80;
 }
 {{end}}
