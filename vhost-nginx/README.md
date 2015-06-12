@@ -4,6 +4,8 @@
 
 /web/~vhost~/server_name (mandatory)
 
+/web/~vhost~/upstream - Templates use ~vhost~ as upstream unless set
+
 /web/~vhost~/client_max_body_size
 
 /web/~vhost~/ssl_certificate - expects a pem certificate include the private key
@@ -32,5 +34,7 @@ etcd &
 
 etcdctl set /services/web/app1/q1w2e3:web:8000 10.10.10.10:8000
 etcdctl set /web/app1/server_name app1.example.com
+
+sed -i '/_cmd/d' /etc/confd/conf.d/vhosts.toml
 confd -onetime
 ```
