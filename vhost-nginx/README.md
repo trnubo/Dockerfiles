@@ -36,5 +36,7 @@ etcdctl set /services/web/app1/q1w2e3:web:8000 10.10.10.10:8000
 etcdctl set /web/app1/server_name app1.example.com
 
 sed -i '/_cmd/d' /etc/confd/conf.d/vhosts.toml
-confd -onetime
+
+# Runs confd once and prints the result if successful
+confd -onetime && cat /etc/nginx/conf.d/vhosts.conf; nginx -t
 ```

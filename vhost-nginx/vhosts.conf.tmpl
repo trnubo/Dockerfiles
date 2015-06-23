@@ -15,7 +15,7 @@ server {
   # access_log /var/log/nginx/{{$vhost}}.access.log;
 
   location / {
-    {{if printf "/web/%s/upstream" $vhost | exists }}{{if printf "/web/%s/upstream" $vhost | getv | printf "/services/web/%s" | ls | len | lt 0 }}
+    {{if printf "/web/%s/upstream" $vhost | exists }}{{if printf "/web/%s/upstream" $vhost | getv | printf "/services/web/%s/" | ls | len | lt 0 }}
     # Use upstream {{$upstream := printf "/web/%s/upstream" $vhost | getv}}{{$upstream}}
     proxy_pass http://{{$upstream}};
     {{if printf "/web/%s/proxy_read_timeout" $vhost | exists}}proxy_read_timeout {{printf "/web/%s/proxy_read_timeout" $vhost | getv}};{{end}}
@@ -25,8 +25,8 @@ server {
     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
     proxy_set_header X-Forwarded-Proto $scheme;
     {{end}}{{end}}
-    {{if and (printf "/web/%s/upstream" $vhost | exists | not ) (printf "/services/web/%s" $vhost | ls | len | lt 0 )}}
-    # Use default
+    {{if and (printf "/web/%s/upstream" $vhost | exists | not ) (printf "/services/web/%s/" $vhost | ls | len | lt 0 )}}
+    # Use default {{printf "/services/web/%s/" $vhost | ls | len | lt 0 }}
     proxy_pass http://{{$vhost}};
     {{if printf "/web/%s/proxy_read_timeout" $vhost | exists}}proxy_read_timeout {{printf "/web/%s/proxy_read_timeout" $vhost | getv}};{{end}}
     {{if printf "/web/%s/client_max_body_size" $vhost | exists}}client_max_body_size {{printf "/web/%s/client_max_body_size" $vhost | getv}};{{end}}
@@ -35,10 +35,10 @@ server {
     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
     proxy_set_header X-Forwarded-Proto $scheme;
     {{end}}
-    {{if printf "/web/%s/upstream" $vhost | exists }}{{if printf "/web/%s/upstream" $vhost | getv | printf "/services/web/%s" | ls | len | lt 0 | not }}
+    {{if printf "/web/%s/upstream" $vhost | exists }}{{if printf "/web/%s/upstream" $vhost | getv | printf "/services/web/%s/" | ls | len | lt 0 | not }}
     # No upstream
     {{end}}{{end}}
-    {{if and (printf "/web/%s/upstream" $vhost | exists | not ) (printf "/services/web/%s" $vhost | ls | len | lt 0 | not )}}
+    {{if and (printf "/web/%s/upstream" $vhost | exists | not ) (printf "/services/web/%s/" $vhost | ls | len | lt 0 | not )}}
     # No upstream 2
     {{end}}
     root /usr/share/nginx/html;
