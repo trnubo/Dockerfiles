@@ -35,7 +35,7 @@ def run(etcdctl_peers, services_base, name, output, maps, links):
     for link in links:
         lname, _, alias = link.partition(":")
         if not alias:
-            alias = lname
+            alias = lname.replace('-', '_')
 
         try:
             # Try to get the service
