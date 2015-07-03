@@ -51,14 +51,14 @@ server {
   }
   {{if printf "/web/%s/ssl_certificate" $vhost | exists}}
   listen                                443 ssl;
-  ssl_certificate                       {{printf "/web/%s/ssl_certificate" $vhost | getv}};
-  ssl_certificate_key                   {{printf "/web/%s/ssl_certificate" $vhost | getv}};
+  ssl_certificate                       ssl/{{printf "/web/%s/ssl_certificate" $vhost | getv}};
+  ssl_certificate_key                   ssl/{{printf "/web/%s/ssl_certificate" $vhost | getv}};
   ssl_ciphers {{if printf "/web/%s/ssl_ciphers" $vhost | exists}}{{printf "/web/%s/ssl_ciphers" $vhost | getv}}{{else}}EECDH+ECDSA+AESGCM:EECDH+aRSA+AESGCM:EECDH+ECDSA+SHA384:EECDH+ECDSA+SHA256:EECDH+aRSA+SHA384:EECDH+aRSA+SHA256:EECDH:EDH+aRSA:!aNULL:!eNULL:!LOW:!3DES:!MD5:!EXP:!PSK:!SRP:!DSS:!RC4{{end}};
   ssl_protocols {{if printf "/web/%s/ssl_protocols" $vhost | exists}}{{printf "/web/%s/ssl_protocols" $vhost | getv}}{{else}}TLSv1 TLSv1.1 TLSv1.2{{end}};
   ssl_prefer_server_ciphers on;
   ssl_session_cache shared:SSL:10m;
   {{/* Get this from an ENV var*/}}
-  ssl_dhparam /dhparam.pem;
+  ssl_dhparam ssl/dhparam.pem;
   {{if (printf "/web/%s/ssl_only" $vhost | exists) and (printf "/web/%s/ssl_only" $vhost | getv | eq "true")}}
 }
 
